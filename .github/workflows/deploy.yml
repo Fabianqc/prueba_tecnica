@@ -15,9 +15,9 @@ jobs:
         script: |
           cd ~/Sow-lettfaktura
           git pull origin main
-          cd backend
+          cd Backend
           npm install
           pm2 restart api
-          cd ../frontend
+          cd ../Frontend
           npm install
           npm run build
