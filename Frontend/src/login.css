@@ -21,7 +21,7 @@
 
 .top-nav {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   align-items: center;
   padding: 20px 40px;
   background:transparent ;
@@ -48,6 +48,7 @@
   font-weight: 600;
   margin: 0;
   padding: 0;
+  
 }
 
 .nav-links li{
@@ -81,6 +82,7 @@
 
 .login-content{
   flex:1;
+  height: 75vh;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -91,7 +93,9 @@
 .login-card{
   background: #ffff;
   width: 100%;
-  max-width: 460px;
+  
+  max-width: 590px;
+  min-width: 250px;
   border-radius: 40px;
   padding: 50px 40px;
   box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.2);
@@ -145,6 +149,9 @@
   border: none;
   border-radius: 30px;
   padding: 15px;
+  min-width: 105px;
+  max-width: 270px;
+  width: 80%;
   font-size: 18px;
   font-weight: 600;
   cursor: pointer;
@@ -175,12 +182,28 @@
 }
 
 .footer{
-  text-align: center;
   padding: 15px;
   color: #fff;
   font-size: 14px;
   z-index: 1;
 }
+
+.footer hr{
+  border: 1px solid #fff;
+}
+
+.footer h3{
+  text-align: left;
+  font-size: 40px;
+  margin-bottom: 5px;
+}
+
+.footer p{
+  text-align: center;
+  margin-top: 5px;
+}
+
+
 
 @media (max-width: 850px){
   .top-nav{
@@ -202,10 +225,27 @@
     gap: 15px;
   }
   
+  
+  .nav-links li{
+    opacity: 0;
+  }
+
   .nav-links.open{
+    animation: slideDownFade 0.3s ease-out forwards;
     display: flex;
   }
 
+    .nav-links.open li{
+    animation: slideDownFade 0.3s ease-out forwards;
+
+  }
+
+  .nav-links.open li:nth-child(1) {animation-delay: 0.1s;}
+  .nav-links.open li:nth-child(2) {animation-delay: 0.2s;}
+  .nav-links.open li:nth-child(3) {animation-delay: 0.3s;}
+  .nav-links.open li:nth-child(4) {animation-delay: 0.4s;}
+  
+  
   .lang-text{
     display: none;
   }
@@ -217,5 +257,27 @@
   .login-card{
     border-radius: 30px;
     padding: 40px 25px;
+  }
+  .footer{
+    padding: 10px;
+  }
+  .footer p{
+    font-size: 8px;
+  }
+
+  .footer h3{
+    font-size: 20px
+  }
+
+}
+
+@keyframes slideDownFade{
+  from{
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to{
+    opacity: 1;
+    transform: translateY(0);
   }
 }

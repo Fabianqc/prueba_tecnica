@@ -1,10 +1,17 @@
 import React, { useState } from 'react';
 import './login.css'
 
+
 export default function Login() {
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+
   return (
     <div className='login-wrapper'>
-      <div className='background-image'>
+      <div className='background-image'></div>
         <nav className='top-nav'>
           <div className='logo-container'>
             <img src="https://storage.123fakturera.se/public/icons/diamond.png"
@@ -13,7 +20,7 @@ export default function Login() {
             />
           </div>
           <div className='nav-right'>
-            <ul className='nav-links'>
+            <ul className={`nav-links ${isMenuOpen ? 'open' : ''}`}>
               <li>Hem</li>
               <li>Priser</li>
               <li>Funktioner</li>
@@ -27,7 +34,7 @@ export default function Login() {
               <span className='lang-text'>Svenska</span>
             </div>
 
-            <div className='hamburger'>
+            <div className='hamburger' onClick={(e)=> setIsMenuOpen(!isMenuOpen)}>
               <svg stroke='currentColor' fill='currentColor' strokeWidth='0' viewBox=' 0 0 24 24'
                 height='32px' width='32px' xmlns='http://www.w3.org/2000/svg'>
                 <path d='M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z'></path>
@@ -41,21 +48,23 @@ export default function Login() {
             <h2 className='login-title'>Logga in</h2>
             <form className='login-form' onSubmit={console.log('submit')}>
               <div className='input-group'>
-                <label> E-post</label>
+                <label> Skriv in din epost adress</label>
                 <input
                   type='email'
-                  value='0'
-                  onChange={console.log('change')}
+                  placeholder='Epost adress'
+                  value={email}
+                  onChange={(e)=> setEmail(e.target.value)}
                   required
                 />
               </div>
 
               <div className='input-group'>
-                <label>Lösenord</label>
+                <label>Skriv in ditt lösenord</label>
                 <input
                 type='password'
-                value='0'
-                onChange={console.log('change')}
+                placeholder='Lösenord'
+                value={password}
+                onChange={(e)=> setPassword(e.target.value)}
                 required
                 />
               </div>
@@ -67,10 +76,12 @@ export default function Login() {
             </div>
           </div>
         </main>
+      
         <footer className='footer'>
-          <p>© 2024 123 Fakturera</p>
+          <h3>123 Fakturera</h3>
+          <hr ></hr>
+          <p>© Lättfaktura, CRO no. 638537, 2025. All rights reserved.</p>
         </footer>
-      </div>
     </div>
   )
 }
