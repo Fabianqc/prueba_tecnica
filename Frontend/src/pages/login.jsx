@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './login.css'
+import { useNavigate } from 'react-router-dom';
 
 
 export default function Login() {
@@ -10,6 +11,40 @@ export default function Login() {
   const [isLangOpen, setIsLangOpen] = useState(false);
   const langRef = useRef(null);
   const menuRef = useRef(null)
+
+  const navigate = useNavigate();
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      const response = await fetch('http://localhost:3000/api/auth/login',{
+        method:'POST',
+        headers:{'Content-Type': 'application/json'},
+        credentials:'include',
+        body:JSON.stringify({email, password})
+      });
+
+      const data = await response.json();
+
+      if(!response.ok){
+        setError(data.error || 'Login failed');
+        return;
+      }
+
+      sessionStorage.setItem('accessToken', data.accessToken);
+      navigate('pricelist');
+      
+    } catch (error) {
+      setError('Connection error. Please try again later.')
+    } finally{
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -89,7 +124,7 @@ export default function Login() {
       <main className='login-content'>
         <div className='login-card'>
           <h2 className='login-title'>Logga in</h2>
-          <form className='login-form' onSubmit={console.log('submit')}>
+          <form className='login-form' onSubmit={handleSubmit}>
             <div className='input-group'>
               <label> Skriv in din epost adress</label>
               <input
@@ -113,6 +148,7 @@ export default function Login() {
             </div>
             <button type='submit' className='login-btn'>Logga in</button>
           </form>
+          {error && <p style={{color:'red', marginTop: '10px', fontSize:'14px'}}> {error} </p>}
           <div className='login-links'>
             <a href="#register">Registrera dig</a>
             <a href="#forgot-password">Glömt lösenord?</a>
