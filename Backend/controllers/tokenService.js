@@ -33,7 +33,7 @@ async function storeRefreshToken(userId, refreshToken) {
     const tokenHash = hashToken(refreshToken);
 
     const decoded = jwt.decode(refreshToken);
-    const expiresAt = new Date(decode.exp * 1000);
+    const expiresAt = new Date(decoded.exp * 1000);
 
     await pool.query(
         `INSERT INTO refresh_tokens (user_id, token_hash, expires_at) 
