@@ -1,11 +1,17 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import './PriceList.css'
+import useTranslations from '../hooks/useTranslations';
 
 
 
 export default function PriceList() {
     const [searchArticle, setSearchArticle] = useState('');
     const [searchProduct, setSearchProduct] = useState('');
+    const [lang, setLang] = useState('sv');
+    const [isLangOpen, setIsLangOpen] = useState(false);
+    const langRef = useRef(null);
+    const { t } = useTranslations(lang);
+
     const [products, setProducts] = useState([
         { id: 1, articleNo: '1000', name: 'Web Development Service', inPrice: 4250, price: 8500, unit: 'hour', inStock: 15, description: 'Description for Web Development Service' },
         { id: 2, articleNo: '1111', name: 'Logo Design Package', inPrice: 1200, price: 3500, unit: 'st', inStock: 10, description: 'Desciption for Logo Design Package' },
@@ -25,10 +31,20 @@ export default function PriceList() {
     })
 
     const menuItems = [
-        { label: 'Price List', url: '/pricelist', active: true, icon:<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1='7' y1='7' x2='7.01' y2='7' /></svg>}
+        { label: 'Price List', url: '/pricelist', active: true, icon: <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" /><line x1='7' y1='7' x2='7.01' y2='7' /></svg> }
 
 
     ]
+
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (isLangOpen && langRef.current && !langRef.current.contains(e.target)) {
+                setIsLangOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [isLangOpen]);
 
     return (
         <div>
@@ -50,17 +66,40 @@ export default function PriceList() {
                             </div>
                         </div>
                     </div>
-                    <div className='pl-header-right'>
-                        <span className='pl-lang-label'>English</span>
-                        <img src='https://storage.123fakturere.no/public/flags/GB.png'
-                            alt='EN'
+                    <div className='pl-header-right' ref={langRef}>
+                        <div className='pl-lang-switcher' onClick={()=> setIsLangOpen(!isLangOpen)}>
+                            <span className='pl-lang-label'>
+                                {lang === 'sv' ? 'Svenska' : 'English'}
+                            </span>
+                            <img
+                            src={lang === 'sv' 
+                                ?
+                                'https://storage.123fakturere.no/public/flags/SE.png'
+                                :
+                                'https://storage.123fakturere.no/public/flags/GB.png'
+                            }
+                            alt={lang === 'sv' ? 'SE': 'EN'}
                             className='pl-flag'
-                        />
+                            />
+                            <svg className={`pl-arrow ${isLangOpen ? 'rotate' : ''}`} width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='#fff' strokeWidth='3'><path d='m6 9 6 6 6-6' /></svg> 
+                        </div>
+                        <ul className={`pl-lang-dropdown ${isLangOpen ? 'show':''}`}>
+                            <li onClick={() => {setLang('sv'); setIsLangOpen(false);}}>
+                                <img src='https://storage.123fakturere.no/public/flags/SE.png' alt='SE' className='pl-flag' />
+                                <span>Svenska</span>
+                            </li>
+                            <li onClick={() => {setLang('en'); setIsLangOpen(false);}}>
+                                <img src='https://storage.123fakturere.no/public/flags/GB.png' alt='EN' className='pl-flag' />
+                                <span>English</span>
+                            </li>
+
+                        </ul>
+                        
                     </div>
                 </header>
                 <div className='pl-body'>
                     <aside className='pl-sidebar'>
-                        <h3 className='pl-sidebar-title'>Menu</h3>
+                        <h3 className='pl-sidebar-title'>{t('pricelist.menu')}</h3>
                         <ul className='pl-menu-list'>
                             {menuItems.map((item, index) => (
                                 <li key={index} className={`pl-menu-item ${item.active ? 'active' : ''}`}>
@@ -76,7 +115,7 @@ export default function PriceList() {
                                 <div className='pl-search-box'>
                                     <input
                                         type='text'
-                                        placeholder='Search Article No ...'
+                                        placeholder={t('pricelist.search_article')}
                                         value={searchArticle}
                                         onChange={(e) => (setSearchArticle(e.target.value))}
                                     />
@@ -88,7 +127,7 @@ export default function PriceList() {
                                 <div className='pl-search-box'>
                                     <input
                                         type='text'
-                                        placeholder='Search Product ...'
+                                        placeholder={t('pricelist.search_product')}
                                         value={searchProduct}
                                         onChange={(e) => setSearchProduct(e.target.value)}
                                     />
@@ -104,27 +143,27 @@ export default function PriceList() {
                                         <circle cx="12" cy="12" r="9" />
                                         <path d="M12 8v8M8 12h8" />
                                     </svg>
-                                    <span>New Product</span>
+                                    <span>{t('pricelist.new_product')}</span>
                                 </button>
                                 <button className='pl-action-btn'>
                                     <svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='#4FC3F7' strokeWidth='2'>
                                         <rect x="5" y="6" width="14" height="14" rx="2" />
                                         <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M8 14h8M8 10h8" />
                                     </svg>
-                                    <span>Advanced mode</span>
+                                    <span>{t('pricelist.advanced_mode')}</span>
                                 </button>
                             </div>
                         </div>
                         <div className='pl-table-container'>
                             <div className='pl-table-header'>
                                 <span className='pl-th pl-th-arrow'></span>
-                                <span className="pl-th pl-th-article">Article No.</span>
-                                <span className="pl-th pl-th-name">Product/Service</span>
-                                <span className="pl-th pl-th-inprice">In Price</span>
-                                <span className="pl-th pl-th-price">Price</span>
-                                <span className="pl-th pl-th-unit">Unit</span>
-                                <span className="pl-th pl-th-stock">In Stock</span>
-                                <span className="pl-th pl-th-desc">Description</span>
+                                <span className="pl-th pl-th-article">{t('pricelist.col_article')}</span>
+                                <span className="pl-th pl-th-name">{t('pricelist.col_product')}</span>
+                                <span className="pl-th pl-th-inprice">{t('pricelist.col_inprice')}</span>
+                                <span className="pl-th pl-th-price">{t('pricelist.col_price')}</span>
+                                <span className="pl-th pl-th-unit">{t('pricelist.col_unit')}</span>
+                                <span className="pl-th pl-th-stock">{t('pricelist.col_stock')}</span>
+                                <span className="pl-th pl-th-desc">{t('pricelist.col_description')}</span>
                                 <span className="pl-th pl-th-actions"></span>
                             </div>
                             <div className='pl-table-body'>
