@@ -5,6 +5,9 @@ import useTranslations from '../hooks/useTranslations';
 
 
 export default function PriceList() {
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const hamburgerRef = useRef(null);
+    const sidebarRef = useRef(null);
     const [searchArticle, setSearchArticle] = useState('');
     const [searchProduct, setSearchProduct] = useState('');
     const [lang, setLang] = useState('sv');
@@ -41,17 +44,20 @@ export default function PriceList() {
             if (isLangOpen && langRef.current && !langRef.current.contains(e.target)) {
                 setIsLangOpen(false);
             }
+            if (isSidebarOpen && sidebarRef.current && !sidebarRef.current.contains(e.target) && hamburgerRef.current && !hamburgerRef.current.contains(e.target)) {
+                setIsSidebarOpen(false);
+            }
         };
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [isLangOpen]);
+    }, [isLangOpen, isSidebarOpen]);
 
     return (
         <div>
             <div className='pl-layout'>
                 <header className='pl-header'>
                     <div className='pl-header-left'>
-                        <div className='pl-hamburger'>
+                        <div className='pl-hamburger' ref={hamburgerRef} onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
                             <svg stroke='currentColor' fill='currentColor' strokeWidth='0' viewBox='0 0 24 24' height='28px' width='28px' xmlns='http://www.w3.org/2000/svg'><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z" /></svg>
                         </div>
                         <div className='pl-user-info'>
@@ -67,38 +73,39 @@ export default function PriceList() {
                         </div>
                     </div>
                     <div className='pl-header-right' ref={langRef}>
-                        <div className='pl-lang-switcher' onClick={()=> setIsLangOpen(!isLangOpen)}>
+                        <div className='pl-lang-switcher' onClick={() => setIsLangOpen(!isLangOpen)}>
                             <span className='pl-lang-label'>
                                 {lang === 'sv' ? 'Svenska' : 'English'}
                             </span>
                             <img
-                            src={lang === 'sv' 
-                                ?
-                                'https://storage.123fakturere.no/public/flags/SE.png'
-                                :
-                                'https://storage.123fakturere.no/public/flags/GB.png'
-                            }
-                            alt={lang === 'sv' ? 'SE': 'EN'}
-                            className='pl-flag'
+                                src={lang === 'sv'
+                                    ?
+                                    'https://storage.123fakturere.no/public/flags/SE.png'
+                                    :
+                                    'https://storage.123fakturere.no/public/flags/GB.png'
+                                }
+                                alt={lang === 'sv' ? 'SE' : 'EN'}
+                                className='pl-flag'
                             />
-                            <svg className={`pl-arrow ${isLangOpen ? 'rotate' : ''}`} width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='#fff' strokeWidth='3'><path d='m6 9 6 6 6-6' /></svg> 
+                            <svg className={`pl-arrow ${isLangOpen ? 'rotate' : ''}`} width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='#fff' strokeWidth='3'><path d='m6 9 6 6 6-6' /></svg>
                         </div>
-                        <ul className={`pl-lang-dropdown ${isLangOpen ? 'show':''}`}>
-                            <li onClick={() => {setLang('sv'); setIsLangOpen(false);}}>
+                        <ul className={`pl-lang-dropdown ${isLangOpen ? 'show' : ''}`}>
+                            <li onClick={() => { setLang('sv'); setIsLangOpen(false); }}>
                                 <img src='https://storage.123fakturere.no/public/flags/SE.png' alt='SE' className='pl-flag' />
                                 <span>Svenska</span>
                             </li>
-                            <li onClick={() => {setLang('en'); setIsLangOpen(false);}}>
+                            <li onClick={() => { setLang('en'); setIsLangOpen(false); }}>
                                 <img src='https://storage.123fakturere.no/public/flags/GB.png' alt='EN' className='pl-flag' />
                                 <span>English</span>
                             </li>
 
                         </ul>
-                        
+
                     </div>
                 </header>
                 <div className='pl-body'>
-                    <aside className='pl-sidebar'>
+                    <div className={`pl-overlay ${isSidebarOpen ? 'show' : ''}`} onClick={() => setIsSidebarOpen(false)}/>
+                    <aside className={`pl-sidebar ${isSidebarOpen ? 'open' : ''}`} ref={sidebarRef}>
                         <h3 className='pl-sidebar-title'>{t('pricelist.menu')}</h3>
                         <ul className='pl-menu-list'>
                             {menuItems.map((item, index) => (
