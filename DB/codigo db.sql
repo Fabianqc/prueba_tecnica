@@ -22,9 +22,13 @@ CREATE TABLE ui_translations (
 
 CREATE TABLE products (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    article_no VARCHAR (50),
     name TEXT NOT NULL,
     in_price NUMERIC(10,2),
     price NUMERIC(10,2),
+    unit VARCHAR(50) DEFAULT 'st',
+    in_stock INTEGER DEFAULT 0,
+    description TEXT DEFAULT '',
     is_active BOOLEAN DEFAULT true,
     update_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

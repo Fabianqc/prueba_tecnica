@@ -4,6 +4,7 @@ const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 const authRoutes = require('./routes/api/login/authRoutes')
+const translationRoutes = require('./routes/api/translationRoutes');
 const authenticateToken = require('./middleware/auth');
 
 const app = express();
@@ -18,6 +19,10 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use('/api/auth', authRoutes);
+
+upp.use('/api/translations', translationRoutes);
+
+
 
 
 app.listen(PORT, () => {
