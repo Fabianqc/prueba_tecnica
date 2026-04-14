@@ -20,7 +20,7 @@ app.use(cookieParser());
 
 app.use('/api/auth', authRoutes);
 
-upp.use('/api/translations', translationRoutes);
+app.use('/api/translations', translationRoutes);
 
 
 

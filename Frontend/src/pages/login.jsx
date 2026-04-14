@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import './login.css'
 import { useNavigate } from 'react-router-dom';
 
+import useTranslations from '../hooks/useTranslations';
+
 
 export default function Login() {
 
@@ -15,6 +17,8 @@ export default function Login() {
   const navigate = useNavigate();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [lang, setLang] = useState('sv');
+  const { t, loading: translationsLoading } = useTranslations(lang);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,26 +26,26 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`,{
-        method:'POST',
-        headers:{'Content-Type': 'application/json'},
-        credentials:'include',
-        body:JSON.stringify({email, password})
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email, password })
       });
 
       const data = await response.json();
 
-      if(!response.ok){
+      if (!response.ok) {
         setError(data.error || 'Login failed');
         return;
       }
 
       sessionStorage.setItem('accessToken', data.accessToken);
       navigate('pricelist');
-      
+
     } catch (error) {
       setError('Connection error. Please try again later.')
-    } finally{
+    } finally {
       setLoading(false);
     }
   }
@@ -75,42 +79,45 @@ export default function Login() {
         </div>
         <div className='nav-right'>
           <ul className={`nav-links ${isMenuOpen ? 'open' : ''}`}>
-            <li>Hem</li>
-            <li>Priser</li>
-            <li>Funktioner</li>
-            <li>Kontakta oss</li>
+            <li>{t('nav.home')}</li>
+            <li>{t('nav.prices')}</li>
+            <li>{t('nav.features')}</li>
+            <li>{t('nav.contact')}</li>
           </ul>
           <div className='lang-container' ref={langRef}>
             <div className='lang-switcher' onClick={() => setIsLangOpen(!isLangOpen)}>
-              <img src="https://storage.123fakturere.no/public/flags/SE.png"
-                alt="SE"
+              <img src={lang === 'sv'
+                ?
+                "https://storage.123fakturere.no/public/flags/SE.png" :
+                "https://storage.123fakturere.no/public/flags/GB.png"}
+                alt={lang === 'sv' ? 'SE' : 'EN'}
                 className='flag-icon'
               />
-              <span className='lang-text'>Svenska</span>
+              <span className='lang-text'>{lang === 'sv' ? 'Svenska' : 'English'}</span>
               <svg className={`arrow-icon ${isLangOpen ? 'rotate' : ''}`} width='12px' height='12px' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='3' strokeLinecap='round' strokeLinejoin='round'><path d='m6 9 6 6 6-6' /></svg>
             </div>
 
-            
-              <ul className={`lang-dropdown ${isLangOpen ? 'show':''}`}>
-                <li className='lang-option'>
-                  <img
-                    src='https://storage.123fakturere.no/public/flags/SE.png'
-                    alt='SE'
-                    className='flag-icon'
-                  />
-                  <span>Svenska</span>
-                </li>
-                <li className='lang-option'>
-                  <img
-                    src='https://storage.123fakturere.no/public/flags/GB.png'
-                    alt='GB'
-                    className='flag-icon'
-                  />
-                  <span>English</span>
 
-                </li>
+            <ul className={`lang-dropdown ${isLangOpen ? 'show' : ''}`}>
+              <li className='lang-option' onClick={() => {setLang('sv'); setIsLangOpen(false)}}>
+                <img
+                  src='https://storage.123fakturere.no/public/flags/SE.png'
+                  alt='SE'
+                  className='flag-icon'
+                />
+                <span>Svenska</span>
+              </li>
+              <li className='lang-option' onClick={() => {setLang('en'); setIsLangOpen(false)}}>
+                <img
+                  src='https://storage.123fakturere.no/public/flags/GB.png'
+                  alt='GB'
+                  className='flag-icon'
+                />
+                <span>English</span>
 
-              </ul>
+              </li>
+
+            </ul>
           </div>
           <div className='hamburger' onClick={(e) => setIsMenuOpen(!isMenuOpen)}>
             <svg stroke='currentColor' fill='currentColor' strokeWidth='0' viewBox=' 0 0 24 24'
@@ -123,13 +130,13 @@ export default function Login() {
 
       <main className='login-content'>
         <div className='login-card'>
-          <h2 className='login-title'>Logga in</h2>
+          <h2 className='login-title'>{t('login.title')}</h2>
           <form className='login-form' onSubmit={handleSubmit}>
             <div className='input-group'>
-              <label> Skriv in din epost adress</label>
+              <label>{t('login.email_label')}</label>
               <input
                 type='email'
-                placeholder='Epost adress'
+                placeholder={t('login.email_placeholder')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -137,21 +144,21 @@ export default function Login() {
             </div>
 
             <div className='input-group'>
-              <label>Skriv in ditt lösenord</label>
+              <label>{t('login.password_label')}</label>
               <input
                 type='password'
-                placeholder='Lösenord'
+                placeholder={t('login.password_placeholder')}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
             </div>
-            <button type='submit' className='login-btn'>Logga in</button>
+            <button type='submit' className='login-btn'>{t('login.submit')}</button>
           </form>
-          {error && <p style={{color:'red', marginTop: '10px', fontSize:'14px'}}> {error} </p>}
+          {error && <p style={{ color: 'red', marginTop: '10px', fontSize: '14px' }}> {error} </p>}
           <div className='login-links'>
-            <a href="#register">Registrera dig</a>
-            <a href="#forgot-password">Glömt lösenord?</a>
+            <a href="#register">{t('login.register')}</a>
+            <a href="#forgot-password">{t('login.forgot_password')}</a>
           </div>
         </div>
       </main>
