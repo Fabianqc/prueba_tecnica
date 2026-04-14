@@ -6,6 +6,7 @@ require('dotenv').config();
 const authRoutes = require('./routes/api/login/authRoutes')
 const translationRoutes = require('./routes/api/translationRoutes');
 const authenticateToken = require('./middleware/auth');
+const productRoutes = require('./routes/api/products/productRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -22,6 +23,7 @@ app.use('/api/auth', authRoutes);
 
 app.use('/api/translations', translationRoutes);
 
+app.use('/api/products', authenticateToken, productRoutes);
 
 
 
