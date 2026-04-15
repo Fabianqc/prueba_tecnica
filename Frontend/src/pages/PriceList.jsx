@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import './PriceList.css'
 import useTranslations from '../hooks/useTranslations';
-
-
+import { authenticatedFetch } from '../utils/api';
 
 export default function PriceList() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -15,14 +14,103 @@ export default function PriceList() {
     const langRef = useRef(null);
     const { t } = useTranslations(lang);
 
-    const [products, setProducts] = useState([
-        { id: 1, articleNo: '1000', name: 'Web Development Service', inPrice: 4250, price: 8500, unit: 'hour', inStock: 15, description: 'Description for Web Development Service' },
-        { id: 2, articleNo: '1111', name: 'Logo Design Package', inPrice: 1200, price: 3500, unit: 'st', inStock: 10, description: 'Desciption for Logo Design Package' },
-    ]);
+    const [products, setProducts] = useState([]);
+    const [loadingProducts, setLoandingProducts] = useState(true);
+    const [activeMenu, setActiveMenu] = useState(null)
 
+    const API_URL = import.meta.env.VITE_API_URL;
+
+    const fieldToDb = {
+        articleNo: 'article_no',
+        inPrice: 'in_price',
+        inStock: 'in_stock',
+        name: 'name',
+        price: 'price',
+        unit: 'unit',
+        description: 'description'
+    }
+
+    const fetchProducts = async () => {
+        try {
+            const response = await authenticatedFetch(`${API_URL}/api/products`);
+            if (response.ok) {
+                const data = await response.json();
+
+                const mapped = data.map(p => ({
+                    id: p.id,
+                    articleNo: p.article_no || '',
+                    name: p.name || '',
+                    inPrice: p.in_price || 0,
+                    price: p.price || 0,
+                    unit: p.unit || 'st',
+                    inStock: p.in_stock || 0,
+                    description: p.description || ''
+                }));
+                setProducts(mapped);
+            }
+        } catch (error) {
+            console.error('Error loanding products:', error);
+        } finally {
+            setLoandingProducts(false);
+        }
+    };
 
     const handleFieldChange = (id, field, value) => {
         setProducts(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p));
+    };
+
+    const handleFieldSave = async (id, field, value) => {
+        const dbField = fieldToDb[field];
+        if (!dbField) return;
+
+        try {
+            await authenticatedFetch(`${API_URL}/api/products/${id}`, {
+                method: 'PATCH',
+                body: JSON.stringify({ [dbField]: value })
+            });
+        } catch (error) {
+            console.error('Error saving field:', error)
+        }
+    };
+
+    const handleNewProduct = async () => {
+        try {
+            const response = await authenticatedFetch(`${API_URL}/api/products`, {
+                method: 'POST',
+                body: JSON.stringify({ name: 'New Product' })
+            });
+            if (response.ok) {
+                const newProduct = await response.json();
+                setProducts(prev => [...prev, {
+                    id: newProduct.id,
+                    articleNo: newProduct.article_no || '',
+                    name: newProduct.name || '',
+                    inPrice: newProduct.in_price || 0,
+                    price: newProduct.price || 0,
+                    unit: newProduct.unit || 'st',
+                    inStock: newProduct.in_stock || 0,
+                    description: newProduct.description || ''
+                }]);
+            }
+        } catch (error) {
+            console.error('Error creating product:', err);
+        }
+    };
+
+    const handleDeleteProduct = async (id) => {
+        try {
+            const response = await authenticatedFetch(`${API_URL}/api/products/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                setProducts(prev => prev.filter(p => p.id !== id));
+                setActiveMenu(null);
+            }
+
+        } catch (error) {
+            console.error('Error deleting product:', error)
+        }
     };
 
     const filteredProducts = products.filter(p => {
@@ -38,6 +126,10 @@ export default function PriceList() {
 
 
     ]
+
+    useEffect(() => {
+        fetchProducts();
+    }, []);
 
     useEffect(() => {
         const handleClickOutside = (e) => {
@@ -104,7 +196,7 @@ export default function PriceList() {
                     </div>
                 </header>
                 <div className='pl-body'>
-                    <div className={`pl-overlay ${isSidebarOpen ? 'show' : ''}`} onClick={() => setIsSidebarOpen(false)}/>
+                    <div className={`pl-overlay ${isSidebarOpen ? 'show' : ''}`} onClick={() => setIsSidebarOpen(false)} />
                     <aside className={`pl-sidebar ${isSidebarOpen ? 'open' : ''}`} ref={sidebarRef}>
                         <h3 className='pl-sidebar-title'>{t('pricelist.menu')}</h3>
                         <ul className='pl-menu-list'>
@@ -145,7 +237,7 @@ export default function PriceList() {
                                 </div>
                             </div>
                             <div className='pl-action-buttons'>
-                                <button className='pl-action-btn'>
+                                <button className='pl-action-btn' onClick={handleNewProduct}>
                                     <svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='#07A31B' strokeWidth='2.5'>
                                         <circle cx="12" cy="12" r="9" />
                                         <path d="M12 8v8M8 12h8" />
@@ -190,16 +282,19 @@ export default function PriceList() {
                                                 type='text'
                                                 value={product.articleNo}
                                                 onChange={(e) => handleFieldChange(product.id, 'articleNo', e.target.value)}
+                                                onBlur={(e) => handleFieldSave(product.id, 'articleNo', e.target.value)}
                                             />
                                         </span>
                                         <span className='pl-td pl-td-name'>
-                                            <input type='text' value={product.name} onChange={(e) => handleFieldChange(product.id, 'name', e.target.value)} />
+                                            <input type='text' value={product.name} onChange={(e) => handleFieldChange(product.id, 'name', e.target.value)}
+                                                onBlur={(e) => handleFieldSave(product.id, 'name', e.target.value)} />
                                         </span>
                                         <span className='pl-td pl-td-inprice'>
                                             <input
                                                 type='text'
                                                 value={product.inPrice}
                                                 onChange={(e) => handleFieldChange(product.id, 'inPrice', e.target.value)}
+                                                onBlur={(e) => handleFieldSave(product.id, 'inPrice', e.target.value)}
                                             />
                                         </span>
                                         <span className='pl-td pl-td-price'>
@@ -207,6 +302,7 @@ export default function PriceList() {
                                                 type='text'
                                                 value={product.price}
                                                 onChange={(e) => handleFieldChange(product.id, 'price', e.target.value)}
+                                                onBlur={(e) => handleFieldSave(product.id, 'price', e.target.value)}
                                             />
                                         </span>
                                         <span className='pl-td pl-td-unit'>
@@ -214,6 +310,7 @@ export default function PriceList() {
                                                 type="text"
                                                 value={product.unit}
                                                 onChange={(e) => handleFieldChange(product.id, 'unit', e.target.value)}
+                                                onBlur={(e) => handleFieldSave(product.id, 'unit', e.target.value)}
                                             />
                                         </span>
                                         <span className='pl-td pl-td-stock'>
@@ -221,6 +318,7 @@ export default function PriceList() {
                                                 type='text'
                                                 value={product.inStock}
                                                 onChange={(e) => handleFieldChange(product.id, 'inStock', e.target.value)}
+                                                onBlur={(e) => handleFieldSave(product.id, 'inStock', e.target.value)}
                                             />
                                         </span>
                                         <span className='pl-td pl-td-desc'>
@@ -228,10 +326,17 @@ export default function PriceList() {
                                                 type='text'
                                                 value={product.description}
                                                 onChange={(e) => handleFieldChange(product.id, 'description', e.target.value)}
+                                                onBlur={(e) => handleFieldSave(product.id, 'description', e.target.value)}
                                             />
                                         </span>
                                         <span className='pl-td pl-td-actions'>
                                             <button className='pl-more-btn'>...</button>
+                                            {activeMenu === product.id && (
+                                                <div className='pl-actions-menu'>
+                                                    <button className='pl-action-delete' onClick={() => handleDeleteProduct(product.id)} delete></button>
+
+                                                </div>
+                                            )}
                                         </span>
                                     </div>
                                 ))}

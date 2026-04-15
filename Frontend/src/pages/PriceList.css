@@ -444,10 +444,42 @@
     .pl-search-area {
         max-width: 100%;
     }
+    
+    .pl-actions-container {
+        position: relative;
+    }
 
     .pl-action-buttons {
         width: 100%;
         justify-content: space-between;
+    }
+
+    .pl-actions-menu {
+        position: absolute;
+        right: 0;
+        top: 100%;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        padding: 4px 0;
+        z-index: 1050;
+        min-width: 120px;
+    }
+
+    .pl-action-delete {
+        width: 100%;
+        padding: 8px 16px;
+        background: none;
+        border: none;
+        color: #e53935;
+        font-size: 14px;
+        cursor: pointer;
+        text-align: left;
+        transition: background 0.2s;
+    }
+
+    .pl-action-delete:hover {
+        background: #ffeaea;
     }
 
     .pl-btn-text {
