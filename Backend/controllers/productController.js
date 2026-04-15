@@ -1,6 +1,13 @@
 const pool = require('../db/pool');
 
+function isNumeric(value) {
+    if (value === null || value === undefined || value === '') return true;
+    return !isNaN(parseFloat(value)) && isFinite(value);
+}
 
+function isValidUUID(id) {
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+}
 
 
 async function getAllProducts(req, res) {
@@ -22,6 +29,9 @@ async function getAllProducts(req, res) {
 async function getProductById(req, res) {
     try {
         const { id } = req.params;
+        if (!isValidUUID(id)) {
+            return res.status(400).json({ error: 'Invalid product ID format' });
+        }
         const result = await pool.query(
             `SELECT id, article_no, name, in_price, price, unit, in_stock, description
             FROM products
@@ -44,6 +54,19 @@ async function createProduct(req, res) {
 
         if (!name) return res.status(400).json({ error: 'Product name is requered' });
 
+        if (!isNumeric(in_price)) return res.status(400).json({ error: 'in_price must be a number' });
+        if (!isNumeric(price)) return res.status(400).json({ error: 'price must be a number' });
+        if (!isNumeric(in_stock)) return res.status(400).json({ error: 'in_stock must be a number' });
+        if (article_no){
+            const existing = await pool.query(`
+                SELECT id FROM products WHERE article_no = $1 AND is_active = true`,
+                [article_no]
+            )
+            if (existing.rows.length > 0){
+                return res.status(409).json({ error: 'Article number already exists'});
+            }
+        }
+
         const result = await pool.query(`
             INSERT INTO products (article_no, name, in_price, price, unit, in_stock, description)
             VALUES ($1, $2, $3, $4, $5, $6, $7)
@@ -62,9 +85,21 @@ async function createProduct(req, res) {
 async function updateProduct(req, res) {
     try {
         const { id } = req.params;
+        if (!isValidUUID(id)) {
+            return res.status(400).json({ error: 'Invalid product ID format' });
+        }
         const { article_no, name, in_price, price, unit, in_stock, description } = req.body;
 
         if (!name) return res.status(400).json({ error: 'Product name is required' });
+
+        if (article_no){
+            const existing = await pool.query(`
+                SELECT id FROM products WHERE article_no = $1 AND id != $2 AND is_active = true`, [article_no]);
+
+            if (existing.rows.length >0 ) {
+                return res.status(409).json({ error: 'Article number already exists'});
+            }
+        }
 
         const result = await pool.query(`
             UPDATE products
@@ -94,6 +129,9 @@ async function updateProduct(req, res) {
 async function patchProduct(req, res) {
     try {
         const { id } = req.params;
+        if (!isValidUUID(id)) {
+            return res.status(400).json({ error: 'Invalid product ID format' });
+        }
         const fields = req.body;
 
         const allowedFields = ['article_no', 'name', 'in_price', 'price', 'unit', 'in_stock', 'description'];
@@ -114,6 +152,9 @@ async function patchProduct(req, res) {
         updates.push(`update_at = CURRENT_TIMESTAMP`);
         values.push(id);
 
+        if (!isNumeric(in_price)) return res.status(400).json({ error: 'in_price must be a number' });
+        if (!isNumeric(price)) return res.status(400).json({ error: 'price must be a number' });
+        if (!isNumeric(in_stock)) return res.status(400).json({ error: 'in_stock must be a number' });
         const result = await pool.query(`
                 UPDATE products
                 SET ${updates.join(',')}
@@ -134,6 +175,9 @@ async function patchProduct(req, res) {
 async function deleteProduct(req, res){
     try {
         const { id } = req.params;
+        if (!isValidUUID(id)) {
+            return res.status(400).json({ error: 'Invalid product ID format' });
+        }
 
         const result = await pool.query(
             `UPDATE products
