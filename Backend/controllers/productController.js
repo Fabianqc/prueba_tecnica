@@ -147,7 +147,7 @@ async function patchProduct(req, res) {
                 if (numericFields.includes(key) && !isNumeric(value)){
                     return res.status(400).json({ error: `${key} must be a number`});
                 }
-                updates.push(`${key} = ${paramIndex}`);
+                updates.push(`${key} = $${paramIndex}`);
                 values.push(value);
                 paramIndex++;
             }
@@ -158,7 +158,7 @@ async function patchProduct(req, res) {
 
             updates.push(`update_at = CURRENT_TIMESTAMP`);
             values.push(id);
-            
+
         const result = await pool.query(`
                 UPDATE products
                 SET ${updates.join(',')}

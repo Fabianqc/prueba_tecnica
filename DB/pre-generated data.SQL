@@ -31,6 +31,8 @@ INSERT INTO ui_translations (key, sv_text, en_text) VALUES
 ('pricelist.col_inprice', 'Inpris', 'In Price'),
 ('pricelist.col_unit', 'Enhet', 'Unit'),
 ('pricelist.col_stock', 'I lager', 'In Stock'),
+('pricelist.search_product', 'Sök produkt...', 'Search Product...'),
+('pricelist.col_price', 'Pris', 'Price'),
 ('pricelist.col_description', 'Beskrivning', 'Description');
 
 
