@@ -1,5 +1,8 @@
 const pool = require('../db/pool');
 
+
+
+
 async function getAllProducts(req, res) {
     try {
         const result = await pool.query(
@@ -11,7 +14,7 @@ async function getAllProducts(req, res) {
         );
         return res.status(200).json(result.rows);
     } catch (error) {
-        console.error('Get products error:', err);
+        console.error('Get products error:', error);
         return res.status(500).json({ error: 'Internal server error' });
     }
 }
@@ -50,7 +53,7 @@ async function createProduct(req, res) {
         );
         return res.status(201).json(result.rows[0]);
     } catch (error) {
-        console.error('Create product error:', err);
+        console.error('Create product error:', error);
         return res.status(500).json({ error: 'Internal server error' });
     }
 }
@@ -83,7 +86,7 @@ async function updateProduct(req, res) {
         return res.status(200).json(result.rows[0]);
 
     } catch (error) {
-        console.error('Update product error:', err);
+        console.error('Update product error:', error);
         return res.status(500).json({ error: 'Internal server error' });
     }
 }
@@ -106,7 +109,7 @@ async function patchProduct(req, res) {
                 paramIndex++;
             }
         }
-        if (updates.length === 0) return res.status(400).json({ error: 'No valid ' })
+        if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' })
 
         updates.push(`update_at = CURRENT_TIMESTAMP`);
         values.push(id);
@@ -121,7 +124,7 @@ async function patchProduct(req, res) {
         if (result.rows.length === 0) return res.status(404).json({ error: 'Product not found' });
         return res.status(200).json(result.rows[0])
     } catch (error) {
-        console.error('Patch product error:', err);
+        console.error('Patch product error:', error);
         return res.status(500).json({ error: 'Internal server error' });
 
     }
@@ -144,7 +147,7 @@ async function deleteProduct(req, res){
 
         return res.status(200).json({ message: 'Product deleted successfully'});
     } catch (error) {
-        console.error('Delete product error:', err);
+        console.error('Delete product error:', error);
         return res.status(500).json({ error: 'Internal server error' });
     }
 }
