@@ -140,21 +140,25 @@ async function patchProduct(req, res) {
         const values = [];
         let paramIndex = 1;
 
-        for (const [key, value] of Object.entries(fields)) {
-            if (allowedFields.includes(key)) {
-                updates.push(`${key} = $${paramIndex}`);
+        const numericFields = ['in_price', 'price', 'in_stock'];
+
+            for(const [key, value] of Object.entries(fields)){
+                if (!allowedFields.includes(key)) continue;
+                if (numericFields.includes(key) && !isNumeric(value)){
+                    return res.status(400).json({ error: `${key} must be a number`});
+                }
+                updates.push(`${key} = ${paramIndex}`);
                 values.push(value);
                 paramIndex++;
             }
-        }
-        if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' })
 
-        updates.push(`update_at = CURRENT_TIMESTAMP`);
-        values.push(id);
+            if (updates.length === 0 ) return res.status(400).json({
+                error: 'No valid fields to update'
+            });
 
-        if (!isNumeric(in_price)) return res.status(400).json({ error: 'in_price must be a number' });
-        if (!isNumeric(price)) return res.status(400).json({ error: 'price must be a number' });
-        if (!isNumeric(in_stock)) return res.status(400).json({ error: 'in_stock must be a number' });
+            updates.push(`update_at = CURRENT_TIMESTAMP`);
+            values.push(id);
+            
         const result = await pool.query(`
                 UPDATE products
                 SET ${updates.join(',')}
