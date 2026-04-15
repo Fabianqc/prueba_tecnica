@@ -330,13 +330,15 @@ export default function PriceList() {
                                             />
                                         </span>
                                         <span className='pl-td pl-td-actions'>
-                                            <button className='pl-more-btn'>...</button>
-                                            {activeMenu === product.id && (
-                                                <div className='pl-actions-menu'>
-                                                    <button className='pl-action-delete' onClick={() => handleDeleteProduct(product.id)} delete></button>
+                                            <div className='pl-actions-container'>
+                                                <button className='pl-more-btn' onClick={() => setActiveMenu(activeMenu === product.id ? null : product.id)}>...</button>
+                                                {activeMenu === product.id && (
+                                                    <div className='pl-actions-menu'>
+                                                        <button className='pl-action-delete' onClick={() => handleDeleteProduct(product.id)} >delete</button>
 
-                                                </div>
-                                            )}
+                                                    </div>
+                                                )}
+                                            </div>
                                         </span>
                                     </div>
                                 ))}

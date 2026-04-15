@@ -7,7 +7,7 @@ function authenticateToken(req, res, next){
 
     if (!token) return res.status(401).json({error: 'Access token required'});
     try {
-        const decoded = jwt.verify(token, proccess.env.JWT_ACCESS_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
         req.user = decoded;
         next();
     }catch ( err){

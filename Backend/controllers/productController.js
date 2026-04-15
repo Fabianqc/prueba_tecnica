@@ -88,7 +88,7 @@ async function updateProduct(req, res) {
     }
 }
 
-async function pathProduct(req, res) {
+async function patchProduct(req, res) {
     try {
         const { id } = req.params;
         const fields = req.body;
@@ -154,6 +154,6 @@ module.exports = {
     getProductById,
     createProduct,
     updateProduct,
-    pathProduct,
+    patchProduct,
     deleteProduct
 }
